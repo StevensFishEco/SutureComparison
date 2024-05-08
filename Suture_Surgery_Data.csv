@@ -1,41 +1,41 @@
-﻿Floy_ID,Tl_mm,Surgeon,Suture_Type,Round,Surgery_Secs,Recovery_Secs,Notes
-801,632,C,Smooth,1,445,23,
-802,308,B,Smooth,1,366,23,
-803,382,A,Smooth,1,366,14,
-804,306,C,Smooth,2,307,18,
-805,355,B,Smooth,2,259,6,
-806,375,A,Smooth,2,293,47,
-807,272,C,Smooth,3,269,9,
-808,352,A,Barbed,1,137,5,
-809,350,C,Barbed,1,163,11,
-810,389,B,Barbed,1,139,46,
-811,367,A,Barbed,2,108,3,
-812,280,C,Barbed,2,129,5,
-813,357,B,Barbed,2,95,7,
-814,243,,,,,,No surgery due to size. Post-surgery mortality.
-815,450,A,Smooth,3,254,16,
-816,349,C,Smooth,4,243,20,
-817,428,B,Smooth,3,224,3,
-818,403,A,Barbed,3,96,6,
-819,342,C,Barbed,3,159,3,Post-surgery mortality.
-820,330,B,Barbed,3,141,7,Post-surgery mortality.
-821,358,A,Smooth,4,231,8,Post-surgery mortality.
-822,363,C,Smooth,5,321,8,
-823,341,A,Smooth,5,234,8,Post-surgery mortality.
-824,426,B,Smooth,4,248,6,
-825,434,B,Smooth,5,248,7,Post-surgery mortality.
-826,359,C,Barbed,4,148,10,
-827,438,A,Barbed,4,123,4,
-828,410,B,Barbed,4,113,6,Post-surgery mortality.
-829,325,B,Barbed,5,151,12,
-830,432,C,Barbed,5,125,2,
-831,324,A,Barbed,5,166,12,
-832,418,A,Barbed,6,105,3,
-833,374,C,Barbed,6,150,3,
-834,327,A,Smooth,6,253,4,
-836,327,C,Smooth,6,296,4,
-837,340,C,Barbed,7,130,3,
-838,354,A,Smooth,7,255,3,Post-surgery mortality.
-839,381,C,Smooth,7,225,20,
-840,296,A,Barbed,7,126,3,
-841,319,C,Barbed,8,144,3,
+﻿Floy_ID,Tl_mm,Surgeon,Suture_Type,Round,Surgery_Secs,Recovery_Secs,Mort_Day,Notes
+801,632,C,Smooth,1,445,23,,
+802,308,B,Smooth,1,366,23,,
+803,382,A,Smooth,1,366,14,,
+804,306,C,Smooth,2,307,18,,
+805,355,B,Smooth,2,259,6,,
+806,375,A,Smooth,2,293,47,,
+807,272,C,Smooth,3,269,9,,
+808,352,A,Barbed,1,137,5,,
+809,350,C,Barbed,1,163,11,,
+810,389,B,Barbed,1,139,46,,
+811,367,A,Barbed,2,108,3,,
+812,280,C,Barbed,2,129,5,,
+813,357,B,Barbed,2,95,7,,
+814,243,,,,,,4,No surgery due to size. Post-surgery mortality.
+815,450,A,Smooth,3,254,16,,
+816,349,C,Smooth,4,243,20,,
+817,428,B,Smooth,3,224,3,,
+818,403,A,Barbed,3,96,6,,
+819,342,C,Barbed,3,159,3,1,Post-surgery mortality.
+820,330,B,Barbed,3,141,7,1,Post-surgery mortality.
+821,358,A,Smooth,4,231,8,3,Post-surgery mortality.
+822,363,C,Smooth,5,321,8,,
+823,341,A,Smooth,5,234,8,1,Post-surgery mortality.
+824,426,B,Smooth,4,248,6,,
+825,434,B,Smooth,5,248,7,2,Post-surgery mortality.
+826,359,C,Barbed,4,148,10,,
+827,438,A,Barbed,4,123,4,,
+828,410,B,Barbed,4,113,6,1,Post-surgery mortality.
+829,325,B,Barbed,5,151,12,,
+830,432,C,Barbed,5,125,2,,
+831,324,A,Barbed,5,166,12,,
+832,418,A,Barbed,6,105,3,,
+833,374,C,Barbed,6,150,3,,
+834,327,A,Smooth,6,253,4,,
+836,327,C,Smooth,6,296,4,,
+837,340,C,Barbed,7,130,3,,
+838,354,A,Smooth,7,255,3,3,Post-surgery mortality.
+839,381,C,Smooth,7,225,20,,
+840,296,A,Barbed,7,126,3,,
+841,319,C,Barbed,8,144,3,,
