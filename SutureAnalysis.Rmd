@@ -1,0 +1,345 @@
+---
+title: "Evaluation of surgery time and short-term incision healing for Largemouth Bass using smooth and barbed absorbable monofilament suture types."
+author: "Jeff Stevens"
+date: "2024-05-02"
+output: html_document
+---
+
+
+### Load Packages ###
+
+Lets start by loading the packages that we will use to analyze and visualize our data. Note that all messages are "turned off" for this code chunk. 
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+require(readr) # this package will help us download our data from GitHub
+require(tidyverse) # this package will help us visualize our data
+require(ggpubr) # this package will help us save our figures in a publishable format
+require(car) # this package will help our regressions
+library(lmtest) # this package will help us with likelihood ratio tests
+
+```
+
+### Load Data ###
+
+Next, we will load our surgical data from GitHub. One fish (fish 0814) was released due to collection stress, so we will exclude it from our analyses.
+
+```{r}
+
+# Load data from GitHub
+
+datafull = read_csv("https://raw.githubusercontent.com/StevensFishEco/SutureComparison/main/Suture_Surgery_Data.csv", show_col_types = FALSE)
+
+# Remove fish 0814
+
+datafull <- datafull[-14,]
+
+```
+
+### Data Visualization ###
+
+#### ggplot2 Theme ####
+
+Before we analyze our data, lets visualize it. First, we will define an overall theme that we will use for all plots. This theme produces AFS styled figures in ggplot2 (Glassic et al. 2019). The original theme code is available at https://github.com/CGuyMSU/AFS-figures.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+# AFS styled ggplot2 theme from Glassic et al. (2019).
+
+theme_AFS <- function() {
+  theme_classic() + 
+  theme(axis.title.y = element_text(size = 14, margin = margin(t = 0, r = 10, b = 0, l = 0), colour = "black"), axis.title.x = element_text(size = 14, margin = margin(t = 10, r = 0, b = 0, l = 0), colour = "black"), text = element_text(family = "Times"), plot.title = element_text(face = "bold", family = "Arial"), legend.position = c(0.3,0.85), legend.text = element_text(size = 12), plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"), axis.ticks.y = element_line(size = 0.5), axis.ticks.x = element_line(size = 0.5), axis.ticks.length = unit(0.2,"cm"), axis.text.y = element_text(colour = "black", size = 12, angle = 0, vjust = 0.5, hjust = 1, margin = margin(t = 0, r = 5, b = 0, l = 0)), axis.text.x = element_text(colour = "black", size = 12, angle = 0, vjust = 0, hjust = 0.5, margin = margin(t = 5, r = 0, b = 0, l = 0)), axis.line = element_line(colour = "black", size = 0.5, lineend = "square"))}
+
+```
+
+#### Surgery and Recovery Time ####
+
+We will start by looking at our surgery and recovery times (recorded in seconds). We will use two different plots to visualize each. First, we will visualize surgery and recovery time by surgeon (i.e., surgeon A, B, or C). Second, we will visualize surgery and recovery time by suture material (i.e., barbed and smooth sutures). We will do this with simple boxplots (in the style of Tukey).
+
+```{r}
+
+#### Surgery Times ####
+
+# By surgeon
+
+a1 <- ggplot(data = datafull) +
+  aes(x = Surgeon, y = Surgery_Secs) +
+  geom_boxplot(width = 0.8, outlier.shape = 21) +
+  theme_AFS() +
+  theme(legend.position = "none", axis.text.x = element_blank(), axis.title.x = element_blank(), plot.margin = unit(c(0.1, 0.1, 0.5, 0.6), "cm")) +
+  labs(fill = "Suture type") +
+  scale_y_continuous(breaks = seq(0, 480, 240), lim = c(0, 480)) +
+  xlab("") +
+  ylab("Surgery time")
+
+# By suture type
+
+b1 <- ggplot(data = datafull) +
+  aes(x = Suture_Type, y = Surgery_Secs) +
+  geom_boxplot(width = 0.8, outlier.shape = 21) +
+  theme_AFS() +
+  theme(legend.position = "none", axis.text.x = element_blank(), axis.text.y = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(), plot.margin = unit(c(0.1, 0.1, 0.5, 0.6), "cm")) +
+  scale_y_continuous(breaks = seq(0, 480, 240), lim = c(0, 480)) +
+  xlab("") +
+  ylab("")
+
+#### Recovery Times ####
+
+# By surgeon
+
+c1 <- ggplot(data = datafull) +
+  aes(x = Surgeon, y = Recovery_Secs) +
+  geom_boxplot(width = 0.8, outlier.shape = 21) +
+  theme_AFS() +
+  theme(legend.position = "none", plot.margin = unit(c(0.1, 0.1, 0.5, 0.6), "cm"), axis.title.y = element_text(size = 14, margin = margin(t = 0, r = 14, b = 0, l = 0), colour = "black")) +
+  scale_y_continuous(breaks = seq(0, 60, 30), lim = c(0, 60)) +
+  xlab("Surgeon") +
+  ylab("Recovery time")
+
+# By suture type
+
+d1 <- ggplot(data = datafull) +
+  aes(x = Suture_Type, y = Recovery_Secs) +
+  geom_boxplot(width = 0.8, outlier.shape = 21) +
+  theme_AFS() +
+  theme(legend.position = "none", axis.text.y = element_blank(), axis.title.y = element_blank(), plot.margin = unit(c(0.1, 0.1, 0.5, 0.6), "cm")) +
+  scale_y_continuous(breaks = seq(0, 60, 30), lim = c(0, 60)) +
+  xlab("Suture type") +
+  ylab("")
+
+#### Combine plots ####
+
+fig1 <- ggarrange(ggarrange(a1, b1, labels = c("A","B"), ncol = 2, nrow = 1, align = "h", widths = c(1,0.85), font.label = list(size = 12, color = "black", face = "plain", family = "Times")), ggarrange(c1, d1, labels = c("C","D"), ncol = 2, nrow = 1, align = "h", widths = c(1,0.85), font.label = list(size = 12, color = "black", face = "plain", family = "Times")), nrow = 2, heights = c(0.85, 1), align = "none")
+
+fig1
+
+# We'll save it as a .tiff file.
+
+#ggsave(filename = "Figure01_Boxplot.tiff", plot = fig1, scale = 1, width = 7.25, height = 4.8, units = "in", dpi = "retina")
+
+```
+
+#### Openness and Inflammation ####
+
+Now, we will look at the openness and inflammation scores. As above, we will use two different plots to visualize each. First, we will visualize openness and inflammation by surgeon (i.e., surgeon A, B, or C). Second, we will visualize openness and inflammation by suture material (i.e., barbed and smooth sutures).
+
+```{r}
+
+#### Openness ####
+
+# By surgeon
+
+a2 <- ggplot(data = datafull) +
+  aes(x = Surgeon, y = Open) +
+  geom_boxplot(width = 0.8, outlier.shape = 21) +  
+  theme_AFS() +
+  theme(legend.position = "none", axis.text.x = element_blank(), axis.title.x = element_blank(), plot.margin = unit(c(0.1, 0.1, 0.5, 0.6), "cm")) +
+  labs(fill = "Suture type") +
+  scale_y_continuous(breaks = seq(0, 4, 2), lim = c(0, 4)) +
+  xlab("") +
+  ylab("Openness")
+
+# By suture type
+
+b2 <- ggplot(data = datafull) +
+  aes(x = Suture_Type, y = Open) +
+  geom_boxplot(width = 0.8, outlier.shape = 21) +  
+  theme_AFS() +
+  theme(legend.position = "none", axis.text.x = element_blank(), axis.text.y = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(), plot.margin = unit(c(0.1, 0.1, 0.5, 0.6), "cm")) +
+  scale_y_continuous(breaks = seq(0, 4, 2), lim = c(0, 4)) +
+  xlab("") +
+  ylab("")
+
+#### Inflammation ####
+
+# By surgeon
+
+c2 <- ggplot(data = datafull) +
+  aes(x = Surgeon, y = Inflame) +
+  geom_boxplot(width = 0.8, outlier.shape = 21) +
+  theme_AFS() +
+  theme(legend.position = "none", plot.margin = unit(c(0.1, 0.1, 0.5, 0.6), "cm"), axis.title.y = element_text(size = 14, margin = margin(t = 0, r = 14, b = 0, l = 0), colour = "black")) +
+  scale_y_continuous(breaks = seq(0, 4, 2), lim = c(0, 4)) +
+  xlab("Surgeon") +
+  ylab("Inflammation")
+
+# By suture type
+
+d2 <- ggplot(data = datafull) +
+  aes(x = Suture_Type, y = Inflame) +
+  geom_boxplot(width = 0.8, outlier.shape = 21) +
+  theme_AFS() +
+  theme(legend.position = "none", axis.text.y = element_blank(), axis.title.y = element_blank(), plot.margin = unit(c(0.1, 0.1, 0.5, 0.6), "cm")) +
+  scale_y_continuous(breaks = seq(0, 4, 2), lim = c(0, 4)) +
+  xlab("Suture type") +
+  ylab("")
+
+#### Combine plots ####
+
+fig2 <- ggarrange(ggarrange(a2, b2, labels = c("A","B"), ncol = 2, nrow = 1, align = "h", widths = c(1,0.85), font.label = list(size = 12, color = "black", face = "plain", family = "Times")), ggarrange(c2, d2, labels = c("C","D"), ncol = 2, nrow = 1, align = "h", widths = c(1,0.85), font.label = list(size = 12, color = "black", face = "plain", family = "Times")), nrow = 2, heights = c(0.85, 1), align = "none")
+
+fig2
+
+# We'll save it as a .tiff file.
+
+#ggsave(filename = "Figure02_Boxplot.tiff", plot = fig2, scale = 1, width = 7.25, height = 4.8, units = "in", dpi = "retina")
+
+```
+
+#### Recovery Time by Surgery Time ####
+
+Since recovery time should be related to surgery time, we will visualize this relationship with a scatterplot and use a simple linear model to create a regression line in the plot.
+
+```{r}
+
+g <- ggplot(data = datafull) +
+  aes(x = Surgery_Secs, y = Recovery_Secs) +
+  geom_point(size = 2, aes(shape = Suture_Type)) +
+  geom_smooth(method = "lm", color = "black") +
+  theme_AFS() +
+  theme(legend.position = "none") +
+  scale_x_continuous(breaks = seq(90, 450, 180), lim = c(90, 450)) +
+  scale_y_continuous(breaks = seq(0, 60, 30), lim = c(0, 60)) +
+  xlab("Surgery Time (seconds)") +
+  ylab("Recovery Time (seconds)")
+
+g
+
+```
+
+### Statistical Analyses ###
+
+Now that we have visualized our data, lets test if any of the trends we saw are statistically significant.
+
+#### Initial Length ####
+
+First, we will test if there was any differences in initial length between treatment groups.
+
+```{r}
+
+median(datafull$Tl_mm)
+min(datafull$Tl_mm)
+max(datafull$Tl_mm)
+
+t.test(Tl_mm ~ Suture_Type, data = datafull) # by suture type
+summary(aov(Tl_mm ~ Surgeon, data = datafull)) # by surgeon
+
+```
+
+#### Surgery Time ####
+
+Next, we will test if there was any differences in surgery time between suture types or among surgeons.
+
+```{r}
+
+median(datafull$Surgery_Secs)
+min(datafull$Surgery_Secs)
+max(datafull$Surgery_Secs)
+
+mod10 <- aov(Surgery_Secs ~ Surgeon + Suture_Type + Surgeon*Suture_Type, data = datafull) 
+summary(mod10) # by suture type and surgeon with interaction
+
+mod11 <- aov(Surgery_Secs ~ Surgeon + Suture_Type, data = datafull) 
+summary(mod11) # by suture type and surgeon without interaction
+
+```
+
+#### Recovery Time ####
+
+Next, we will test if there was any differences in recovery time between suture types or among surgeons. Then, we will test if recovery time was related to surgery time.
+
+```{r}
+
+median(datafull$Recovery_Secs)
+min(datafull$Recovery_Secs)
+max(datafull$Recovery_Secs)
+
+mod20 <- aov(Recovery_Secs ~ Surgeon + Suture_Type + Surgeon*Suture_Type, data = datafull)
+summary(mod20) # by suture type and surgeon with interaction
+
+mod21 <- aov(Recovery_Secs ~ Surgeon + Suture_Type, data = datafull)
+summary(mod21) # by suture type and surgeon without interaction
+
+mod22 <- glm(Recovery_Secs ~ Surgery_Secs, family = Gamma, data = datafull)
+summary(mod22) # by surgical time
+lrtest(mod22)
+
+```
+
+#### Mortality ####
+
+Next, we will test if there was any differences in mortality between suture types or among surgeons. Then, we will test if mortality was related to surgery time or recovery time.
+
+```{r}
+
+mod30 <- glm(Mortality ~ Suture_Type, family = binomial, data = datafull)
+summary(mod30) # by suture type
+lrtest(mod30)
+
+mod31 <- glm(Mortality ~ Surgeon, family = binomial, data = datafull)
+summary(mod31) # by surgeon
+lrtest(mod31)
+
+mod32 <- glm(Mortality ~ Surgery_Secs, family = binomial, data = datafull)
+summary(mod32) # by surgical time
+lrtest(mod32)
+
+mod33 <- glm(Mortality ~ Recovery_Secs, family = binomial, data = datafull)
+summary(mod33) # by recovery time
+lrtest(mod33)
+
+```
+
+#### Openness ####
+
+Next, we will test if there was any differences in openness between suture types or among surgeons. Then, we will test if openness was related to surgery time or recovery time.
+
+```{r}
+
+median(na.omit(datafull$Open))
+min(na.omit(datafull$Open))
+max(na.omit(datafull$Open))
+
+mod40 <- aov(Open ~ Surgeon + Suture_Type + Surgeon*Suture_Type, data = datafull)
+summary(mod40) # by suture type and surgeon with interaction
+
+mod41 <- aov(Open ~ Surgeon + Suture_Type, data = datafull)
+summary(mod41) # by suture type and surgeon without interaction
+
+mod42 <- glm(Open ~ Surgery_Secs, data = datafull)
+summary(mod42) # by surgical time
+lrtest(mod42)
+
+mod43 <- glm(Open ~ Recovery_Secs, data = datafull)
+summary(mod43) # by recovery time
+lrtest(mod43)
+
+```
+
+#### Inflammation ####
+
+Finally, we will test if there was any differences in inflammation between suture types or among surgeons. Then, we will test if inflammation was related to surgery time or recovery time.
+
+```{r}
+
+median(na.omit(datafull$Inflame))
+min(na.omit(datafull$Inflame))
+max(na.omit(datafull$Inflame))
+
+mod50 <- aov(Inflame ~ Surgeon + Suture_Type + Surgeon*Suture_Type, data = datafull)
+summary(mod50) # by suture type and surgeon with interaction
+
+mod51 <- aov(Inflame ~ Surgeon + Suture_Type, data = datafull)
+summary(mod51) # by suture type and surgeon without interaction
+
+DunnettTest(x = datafull$Inflame, g = datafull$Surgeon)
+
+mod52 <- glm(Inflame ~ Surgery_Secs, data = datafull)
+summary(mod52) # by surgical time
+lrtest(mod52)
+
+mod53 <- glm(Inflame ~ Recovery_Secs, data = datafull)
+summary(mod53) # by recovery time
+lrtest(mod53)
+
+```
